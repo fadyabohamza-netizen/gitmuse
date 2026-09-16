@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GitMuse — AI-powered git workflow assistant. Generate commit messages, explain errors, and write PR descriptions in seconds.">
+<title>GitMuse — AI Git Workflow Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --danger: #f85149;
+    --purple: #bc8cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .logo span { color: var(--muted); font-weight: 400; }
+  .logo .icon { font-size: 26px; }
+  header nav a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: 16px;
+  }
+  header nav a:hover { text-decoration: underline; }
+  main {
+    flex: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    width: 100%;
+  }
+  .hero h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .hero p { color: var(--muted); margin-bottom: 28px; font-size: 14px; }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .tab {
+    padding: 10px 18px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tool {
+    display: none;
+  }
+  .tool.active { display: block; }
+  .field-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 180px;
+    background: var(--bg2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: #484f58; }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .premium-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .premium-toggle input {
+    accent-color: var(--purple);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  button.generate {
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  button.generate:hover { opacity: 0.9; }
+  button.generate:disabled { opacity: 0.5; cursor: not-allowed; }
+  .premium-badge {
+    background: linear-gradient(135deg, #6e40c9, #bc8cff);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.5px;
+  }
+  .output {
+    margin-top: 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    min-height: 60px;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    display: none;
+  }
+  .output.show { display: block; }
+  .output-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .copy-btn {
+    margin-top: 12px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+  }
+  .copy-btn.show { display: inline-block; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+  .err.show { display: block; }
+  .status-line {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    display: none;
+  }
+  .status-line.show { display: block; }
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  .api-endpoint {
+    margin-top: 40px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .api-endpoint h3 { font-size: 14px; color: var(--accent); margin-bottom: 8px; }
+  .api-endpoint pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: auto;
+    color: var(--text);
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(13,17,23,0.3);
+    border-top-color: #0d1117;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 22px; }
+    header { padding: 14px 16px; }
+    main { padding: 24px 14px; }
+    .logo { font-size: 16px; }
+    header nav a { font-size: 12px; margin-left: 10px; display: inline-block; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <span class="icon">🪶</span>
+    GitMuse
+    <span>· AI git workflow</span>
+  </a>
+  <nav>
+    <a href="https://github.com/fadyabohamza-netizen/gitmuse" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://gen.pollinations.ai" target="_blank" rel="noopener">Powered by Pollinations</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Supercharge your git workflow</h1>
+    <p>Commit messages. Error debugging. PR descriptions. Instant, from your terminal output. Powered by Pollinations AI.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-mode="COMMIT">📝 Commit Message</button>
+    <button class="tab" data-mode="ERROR">🐞 Error Fix</button>
+    <button class="tab" data-mode="PR">🔄 PR Description</button>
+  </div>
+
+  <!-- Commit -->
+  <section class="tool active" data-tool="COMMIT">
+    <div class="field-label">Paste your diff / staged changes</div>
+    <textarea id="commitInput" placeholder="git diff --cached&#10;diff --git a/src/utils.ts b/src/utils.ts&#10;index 1234abc..5678def 100644&#10;--- a/src/utils.ts&#10;+++ b/src/utils.ts&#10;@@ ... @@ export function formatDate(d: Date) {&#10;+  return d.toISOString().split('T')[0];&#10; }"></textarea>
+  </section>
+
+  <!-- Error -->
+  <section class="tool" data-tool="ERROR">
+    <div class="field-label">Paste your error / stack trace</div>
+    <textarea id="errorInput" placeholder="TypeError: Cannot read properties of undefined (reading 'map')&#10;    at renderList (App.js:42)&#10;    at App (App.js:18)"></textarea>
+  </section>
+
+  <!-- PR -->
+  <section class="tool" data-tool="PR">
+    <div class="field-label">Paste your diff + optional context</div>
+    <textarea id="prInput" placeholder="[optional context — what you built and why]&#10;&#10;git diff main...HEAD&#10;diff --git a/src/api.ts b/src/api.ts&#10;@@ ... export async function getUsers() {&#10;+  const users = await db.query('SELECT * FROM users');&#10;+  return users.map(u => ({ id: u.id, name: u.name }));&#10; }"></textarea>
+  </section>
+
+  <div class="controls">
+    <button class="generate" id="generateBtn">Generate</button>
+    <label class="premium-toggle">
+      <input type="checkbox" id="premiumCheck">
+      Premium model
+      <span class="premium-badge">PRO</span>
+    </label>
+    <span class="status-line" id="status"></span>
+  </div>
+
+  <div class="err" id="err"></div>
+
+  <div class="output" id="output">
+    <div class="output-label">Result</div>
+    <div id="outputText"></div>
+  </div>
+  <button class="copy-btn" id="copyBtn">Copy to clipboard</button>
+
+  <div class="api-endpoint">
+    <h3>API — call GitMuse from anywhere</h3>
+    <pre><code>curl https://gen.pollinations.ai/v1/chat/completions \
+  -H "Authorization: Bearer $POLLINATIONS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "fadyabohamza-netizen/gitmuse",
+    "messages": [{"role":"user","content":"[COMMIT]\n&lt;your-diff&gt;"}]
+  }'</code></pre>
+  </div>
+</main>
+
+<footer>
+  Made with 🪶 by <a href="https://github.com/fadyabohamza-netizen" target="_blank" rel="noopener">fadyabohamza-netizen</a> · Powered by <a href="https://gen.pollinations.ai" target="_blank" rel="noopener">Pollinations</a> · Free for everyone
+</footer>
+
+<script>
+const FREE_MODEL = "fadyabohamza-netizen/gitmuse";
+const PREMIUM_MODEL = "openai/gpt-4o";
+const API_BASE = "https://gen.pollinations.ai/v1/chat/completions";
+
+let currentMode = "COMMIT";
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tool").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentMode = tab.dataset.mode;
+    document.querySelector(`[data-tool="${currentMode}"]`).classList.add("active");
+  });
+});
+
+document.getElementById("generateBtn").addEventListener("click", generate);
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const text = document.getElementById("outputText").textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById("copyBtn");
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy to clipboard", 1500);
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
+});
+
+async function generate() {
+  const premium = document.getElementById("premiumCheck").checked;
+  const inputId = {
+    COMMIT: "commitInput",
+    ERROR: "errorInput",
+    PR: "prInput"
+  }[currentMode];
+  const input = document.getElementById(inputId).value.trim();
+  const errBox = document.getElementById("err");
+  const status = document.getElementById("status");
+  const btn = document.getElementById("generateBtn");
+  const output = document.getElementById("output");
+  const copyBtn = document.getElementById("copyBtn");
+
+  errBox.classList.remove("show");
+  status.classList.remove("show");
+  output.classList.remove("show");
+  copyBtn.classList.remove("show");
+
+  if (!input) {
+    errBox.textContent = "Please paste some input first.";
+    errBox.classList.add("show");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Thinking...';
+  status.textContent = premium
+    ? "Using premium model (openai/gpt-4o)..."
+    : "Free, instant..." ;
+  status.classList.add("show");
+
+  try {
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: premium ? PREMIUM_MODEL : FREE_MODEL,
+        messages: [{ role: "user", content: `[${currentMode}]\n${input}` }]
+      })
+    });
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text) {
+      throw new Error(data?.error?.message || "No response from the model");
+    }
+    // Strip tool-call noise if any
+    const lastClose = text.lastIndexOf("</details>");
+    const clean = lastClose >= 0 ? text.slice(lastClose + 10) : text;
+    document.getElementById("outputText").textContent = clean.trim();
+    output.classList.add("show");
+    copyBtn.classList.add("show");
+  } catch (e) {
+    errBox.textContent = `Error: ${e.message}`;
+    errBox.classList.add("show");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Generate";
+    status.classList.remove("show");
+  }
+}
+
+// Ctrl/Cmd + Enter shortcut
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") generate();
+});
+</script>
+</body>
+</html>
