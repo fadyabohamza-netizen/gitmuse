@@ -34,7 +34,13 @@ agent.json    # Pollinations prompt-agent definition (owner-side)
 
 ## Links
 
-- Live app: GitHub Pages URL
-- Agent: `fadyabohamza-netizen/gitmuse` (private, owner access)
+- **Live app:** https://fadyabohamza-netizen.github.io/gitmuse/
+- Agent: `fadyabohamza-netizen/gitmuse` (private, owner access — the web app uses public base models + embedded prompt via BYOP)
 - Powered by [Pollinations](https://gen.pollinations.ai)
 - Author: [fadyabohamza-netizen](https://github.com/fadyabohamza-netizen)
+
+## Privacy
+
+- Scoped user keys are kept in `sessionStorage` only — never written to localStorage, URLs, or logs
+- PKCE authorize-code flow (no client secret required for static apps)
+- Users can revoke/edit the app key at any time from [enter.pollinations.ai/keys](https://enter.pollinations.ai/keys)
