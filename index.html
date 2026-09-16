@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="GitMuse — AI-powered git workflow assistant. Generate commit messages, explain errors, and write PR descriptions in seconds.">
+<meta name="description" content="GitMuse — AI-powered git workflow assistant. Generate commit messages, explain errors, and write PR descriptions in seconds. Powered by Pollinations.">
+<meta property="og:title" content="GitMuse — AI Git Workflow Assistant">
+<meta property="og:description" content="Commit messages. Error debugging. PR descriptions. Instant, from your terminal output. Powered by Pollinations AI.">
+<meta property="og:url" content="https://fadyabohamza-netizen.github.io/gitmuse/">
+<meta property="og:type" content="website">
 <title>GitMuse — AI Git Workflow Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
@@ -18,6 +22,7 @@
     --accent2: #3fb950;
     --danger: #f85149;
     --purple: #bc8cff;
+    --gold: #d29922;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -69,7 +74,39 @@
     margin-bottom: 8px;
     color: var(--accent);
   }
-  .hero p { color: var(--muted); margin-bottom: 28px; font-size: 14px; }
+  .hero p { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+  .auth-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .auth-bar .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--muted); flex-shrink: 0;
+  }
+  .auth-bar .dot.connected { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  .auth-bar .auth-text { font-size: 13px; color: var(--text); flex: 1; min-width: 200px; }
+  .auth-bar .auth-text small { color: var(--muted); display: block; margin-top: 4px; }
+  .auth-bar button.connect {
+    background: var(--accent2);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .auth-bar button.connect:hover { opacity: 0.9; }
+  .auth-bar button.connect.gold { background: var(--gold); }
   .tabs {
     display: flex;
     gap: 4px;
@@ -89,13 +126,8 @@
     transition: all 0.2s;
   }
   .tab:hover { color: var(--text); }
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
-  .tool {
-    display: none;
-  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tool { display: none; }
   .tool.active { display: block; }
   .field-label {
     font-size: 12px;
@@ -135,12 +167,7 @@
     color: var(--muted);
     cursor: pointer;
   }
-  .premium-toggle input {
-    accent-color: var(--purple);
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-  }
+  .premium-toggle input { accent-color: var(--purple); width: 16px; height: 16px; cursor: pointer; }
   button.generate {
     background: var(--accent);
     color: #0d1117;
@@ -199,14 +226,18 @@
   }
   .copy-btn.show { display: inline-block; }
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
-  .err.show { display: block; }
-  .status-line {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 8px;
+  .err {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 10px;
     display: none;
+    background: rgba(248,81,73,0.08);
+    border: 1px solid rgba(248,81,73,0.3);
+    padding: 10px 12px;
+    border-radius: 8px;
   }
+  .err.show { display: block; }
+  .status-line { font-size: 12px; color: var(--muted); margin-top: 8px; display: none; }
   .status-line.show { display: block; }
   footer {
     text-align: center;
@@ -217,14 +248,9 @@
     background: var(--bg2);
   }
   footer a { color: var(--accent); text-decoration: none; }
-  .api-endpoint {
-    margin-top: 40px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 18px;
-  }
+  .api-endpoint { margin-top: 40px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
   .api-endpoint h3 { font-size: 14px; color: var(--accent); margin-bottom: 8px; }
+  .api-endpoint p { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
   .api-endpoint pre {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -272,7 +298,13 @@
 <main>
   <div class="hero">
     <h1>Supercharge your git workflow</h1>
-    <p>Commit messages. Error debugging. PR descriptions. Instant, from your terminal output. Powered by Pollinations AI.</p>
+    <p>Commit messages. Error debugging. PR descriptions. Instant, from your terminal output. Powered by Pollinations AI — paid from <b>your own</b> Pollen budget.</p>
+  </div>
+
+  <div class="auth-bar">
+    <span class="dot" id="authDot"></span>
+    <div class="auth-text" id="authText">Not connected.</div>
+    <button class="connect" id="connectBtn">Connect Pollen</button>
   </div>
 
   <div class="tabs">
@@ -281,19 +313,16 @@
     <button class="tab" data-mode="PR">🔄 PR Description</button>
   </div>
 
-  <!-- Commit -->
   <section class="tool active" data-tool="COMMIT">
     <div class="field-label">Paste your diff / staged changes</div>
     <textarea id="commitInput" placeholder="git diff --cached&#10;diff --git a/src/utils.ts b/src/utils.ts&#10;index 1234abc..5678def 100644&#10;--- a/src/utils.ts&#10;+++ b/src/utils.ts&#10;@@ ... @@ export function formatDate(d: Date) {&#10;+  return d.toISOString().split('T')[0];&#10; }"></textarea>
   </section>
 
-  <!-- Error -->
   <section class="tool" data-tool="ERROR">
     <div class="field-label">Paste your error / stack trace</div>
     <textarea id="errorInput" placeholder="TypeError: Cannot read properties of undefined (reading 'map')&#10;    at renderList (App.js:42)&#10;    at App (App.js:18)"></textarea>
   </section>
 
-  <!-- PR -->
   <section class="tool" data-tool="PR">
     <div class="field-label">Paste your diff + optional context</div>
     <textarea id="prInput" placeholder="[optional context — what you built and why]&#10;&#10;git diff main...HEAD&#10;diff --git a/src/api.ts b/src/api.ts&#10;@@ ... export async function getUsers() {&#10;+  const users = await db.query('SELECT * FROM users');&#10;+  return users.map(u => ({ id: u.id, name: u.name }));&#10; }"></textarea>
@@ -318,27 +347,160 @@
   <button class="copy-btn" id="copyBtn">Copy to clipboard</button>
 
   <div class="api-endpoint">
-    <h3>API — call GitMuse from anywhere</h3>
-    <pre><code>curl https://gen.pollinations.ai/v1/chat/completions \
-  -H "Authorization: Bearer $POLLINATIONS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "fadyabohamza-netizen/gitmuse",
-    "messages": [{"role":"user","content":"[COMMIT]\n&lt;your-diff&gt;"}]
-  }'</code></pre>
+    <h3>How it works — Bring Your Own Pollen</h3>
+    <p>Click <b>Connect Pollen</b>, approve the consent screen (default budget 5 Pollen, valid 7 days, revocable anytime from <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noopener" style="color:var(--accent)">your dashboard</a>), and every request is paid from your own balance through a scoped key. You stay in control — GitMuse never touches your secret key.</p>
   </div>
 </main>
 
 <footer>
-  Made with 🪶 by <a href="https://github.com/fadyabohamza-netizen" target="_blank" rel="noopener">fadyabohamza-netizen</a> · Powered by <a href="https://gen.pollinations.ai" target="_blank" rel="noopener">Pollinations</a> · Free for everyone
+  Made with 🪶 by <a href="https://github.com/fadyabohamza-netizen" target="_blank" rel="noopener">fadyabohamza-netizen</a> · Powered by <a href="https://gen.pollinations.ai" target="_blank" rel="noopener">Pollinations</a>
 </footer>
 
 <script>
-const FREE_MODEL = "fadyabohamza-netizen/gitmuse";
-const PREMIUM_MODEL = "openai/gpt-4o";
-const API_BASE = "https://gen.pollinations.ai/v1/chat/completions";
+// ─── Config ────────────────────────────────────────────────────────────
+const CLIENT_ID      = "pk_jyH2go9pS3YTasgI";
+const REDIRECT_URI   = "https://fadyabohamza-netizen.github.io/gitmuse/";
+const AUTH_URL       = "https://enter.pollinations.ai/authorize";
+const TOKEN_URL      = "https://enter.pollinations.ai/api/oauth/token";
+const API_BASE       = "https://gen.pollinations.ai/v1/chat/completions";
+const FREE_MODEL     = "openai/gpt-5.4-nano";
+const PREMIUM_MODEL  = "openai/gpt-5.5";
+const STORAGE_KEY    = "gm_session_key";
+const VERIFIER_KEY   = "gm_pkce_verifier";
+const STATE_KEY      = "gm_pkce_state";
 
+const SYSTEM_PROMPT = `You are GitMuse — an expert git workflow assistant. You handle three modes indicated by the user's input prefix. You are concise, precise, and never waste words.
+
+MODES:
+
+1. [COMMIT] — The user pastes a git diff or staged changes. Generate a Conventional Commits message.
+   - Format: <type>(<scope>): <description>
+   - Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build
+   - Scope: infer from changed files if obvious
+   - Description: imperative mood, lowercase, no period, under 72 chars
+   - If the diff is large, write a body paragraph after a blank line explaining the key changes
+   - Return ONLY the commit message. No explanation, no markdown, no code fences.
+
+2. [ERROR] — The user pastes an error message, stack trace, or build output. Explain what went wrong and how to fix it.
+   - First line: one-sentence summary of the error (plain English, no jargon)
+   - Second paragraph: the fix (specific commands or code changes)
+   - If multiple possible causes exist, list them briefly
+   - Keep the whole response under 150 words
+   - No code fences around your response. Return plain text only.
+
+3. [PR] — The user pastes a diff or description of changes. Generate a pull request title and body.
+   - Title: same Conventional Commits format as [COMMIT], under 72 chars
+   - Body: 2-4 bullet points summarizing what changed and why
+   - If the user provides additional context, incorporate it
+   - Return ONLY the title and body. No explanation.
+
+RULES:
+- Never add preamble like "Here's your commit message:" or "Based on the diff..."
+- Never use markdown formatting, code fences, or bullet points in [COMMIT] mode
+- Be ruthlessly concise. Every word must earn its place.
+- If the input is ambiguous, pick the most likely mode and proceed.
+- Never mention that you are an AI or that you are reading a prefix.`;
+
+// ─── PKCE helpers ──────────────────────────────────────────────────────
+function b64url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+async function sha256(str) {
+  const data = new TextEncoder().encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return b64url(digest);
+}
+function randomToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return b64url(bytes);
+}
+
+// ─── Auth state ────────────────────────────────────────────────────────
+function getKey() { return sessionStorage.getItem(STORAGE_KEY); }
+
+async function connect() {
+  const verifier = randomToken();
+  const state = randomToken();
+  const challenge = await sha256(verifier);
+  sessionStorage.setItem(VERIFIER_KEY, verifier);
+  sessionStorage.setItem(STATE_KEY, state);
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    scope: "usage",
+    state,
+    code_challenge: challenge,
+    code_challenge_method: "S256"
+  });
+  window.location.href = `${AUTH_URL}?${params.toString()}`;
+}
+
+async function handleCallback() {
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const error = url.searchParams.get("error");
+  if (error) { showError(`Authorization failed: ${error}`); return; }
+  if (!code) return;
+  const verifier = sessionStorage.getItem(VERIFIER_KEY);
+  const savedState = sessionStorage.getItem(STATE_KEY);
+  if (!verifier || state !== savedState) { showError("Invalid OAuth state (possible CSRF). Retry connecting."); return; }
+  try {
+    const res = await fetch(TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        client_id: CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        code_verifier: verifier
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.access_token) throw new Error(data.error_description || data.error || "Token exchange failed");
+    sessionStorage.setItem(STORAGE_KEY, data.access_token);
+    sessionStorage.removeItem(VERIFIER_KEY);
+    sessionStorage.removeItem(STATE_KEY);
+    history.replaceState({}, "", REDIRECT_URI);
+  } catch (e) { showError(`Connection failed: ${e.message}`); }
+}
+
+// ─── UI state ──────────────────────────────────────────────────────────
+function updateAuthUI() {
+  const key = getKey();
+  const dot = document.getElementById("authDot");
+  const text = document.getElementById("authText");
+  const btn = document.getElementById("connectBtn");
+  if (key) {
+    dot.classList.add("connected");
+    text.innerHTML = "<b>Connected</b> — requests are paid from your own Pollen.<small>Scoped key valid up to 7 days · revoke anytime from your dashboard.</small>";
+    btn.textContent = "Disconnect";
+    btn.classList.add("gold");
+  } else {
+    dot.classList.remove("connected");
+    text.innerHTML = "Not connected — connect your Pollen wallet to generate.<small>Budget default 5 Pollen · you stay in control.</small>";
+    btn.textContent = "Connect Pollen";
+    btn.classList.remove("gold");
+  }
+}
+
+function disconnect() {
+  sessionStorage.removeItem(STORAGE_KEY);
+  updateAuthUI();
+}
+
+// ─── Main generate ─────────────────────────────────────────────────────
 let currentMode = "COMMIT";
+
+function showError(msg) {
+  const box = document.getElementById("err");
+  box.textContent = msg;
+  box.classList.add("show");
+}
 
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
@@ -348,6 +510,10 @@ document.querySelectorAll(".tab").forEach(tab => {
     currentMode = tab.dataset.mode;
     document.querySelector(`[data-tool="${currentMode}"]`).classList.add("active");
   });
+});
+
+document.getElementById("connectBtn").addEventListener("click", () => {
+  if (getKey()) { disconnect(); } else { connect(); }
 });
 
 document.getElementById("generateBtn").addEventListener("click", generate);
@@ -371,11 +537,7 @@ document.getElementById("copyBtn").addEventListener("click", async () => {
 
 async function generate() {
   const premium = document.getElementById("premiumCheck").checked;
-  const inputId = {
-    COMMIT: "commitInput",
-    ERROR: "errorInput",
-    PR: "prInput"
-  }[currentMode];
+  const inputId = { COMMIT: "commitInput", ERROR: "errorInput", PR: "prInput" }[currentMode];
   const input = document.getElementById(inputId).value.trim();
   const errBox = document.getElementById("err");
   const status = document.getElementById("status");
@@ -388,44 +550,55 @@ async function generate() {
   output.classList.remove("show");
   copyBtn.classList.remove("show");
 
+  if (!getKey()) {
+    showError("Connect your Pollen first — click \"Connect Pollen\" above and approve the consent screen.");
+    return;
+  }
   if (!input) {
-    errBox.textContent = "Please paste some input first.";
-    errBox.classList.add("show");
+    showError("Please paste some input first.");
     return;
   }
 
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Thinking...';
-  status.textContent = premium
-    ? "Using premium model (openai/gpt-4o)..."
-    : "Free, instant..." ;
+  status.textContent = premium ? "Using premium model (openai/gpt-5.5)..." : "Generating (openai/gpt-5.4-nano)...";
   status.classList.add("show");
 
   try {
     const res = await fetch(API_BASE, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${getKey()}`
       },
       body: JSON.stringify({
         model: premium ? PREMIUM_MODEL : FREE_MODEL,
-        messages: [{ role: "user", content: `[${currentMode}]\n${input}` }]
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `[${currentMode}]\n${input}` }
+        ]
       })
     });
     const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content;
-    if (!text) {
-      throw new Error(data?.error?.message || "No response from the model");
+    if (!res.ok) {
+      if (res.status === 401) {
+        sessionStorage.removeItem(STORAGE_KEY);
+        showError("Your scoped key expired or was revoked — connect again.");
+        updateAuthUI();
+      } else {
+        throw new Error(data?.error?.message || (`HTTP ${res.status}`));
+      }
+      return;
     }
-    // Strip tool-call noise if any
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text) throw new Error(data?.error?.message || "No response from the model");
     const lastClose = text.lastIndexOf("</details>");
     const clean = lastClose >= 0 ? text.slice(lastClose + 10) : text;
     document.getElementById("outputText").textContent = clean.trim();
     output.classList.add("show");
     copyBtn.classList.add("show");
   } catch (e) {
-    errBox.textContent = `Error: ${e.message}`;
-    errBox.classList.add("show");
+    showError(`Error: ${e.message}`);
   } finally {
     btn.disabled = false;
     btn.textContent = "Generate";
@@ -433,9 +606,22 @@ async function generate() {
   }
 }
 
-// Ctrl/Cmd + Enter shortcut
 document.addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") generate();
+});
+
+// ─── Init ──────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.location.hash?.length > 1) {
+    const frag = new URLSearchParams(window.location.hash.slice(1));
+    const fragKey = frag.get("api_key");
+    if (fragKey) {
+      sessionStorage.setItem(STORAGE_KEY, fragKey);
+      history.replaceState({}, "", REDIRECT_URI);
+    }
+  }
+  handleCallback();
+  updateAuthUI();
 });
 </script>
 </body>
